@@ -3,49 +3,52 @@
 - hosts: localhost
   connection: local
   become: yes
-  become_user: ubuntu
+  become_user: root
   become_method: sudo
   vars:
      core_packages: ['software-properties-common', 'certbot', 'python-certbot-apache', 'ec2-instance-connect', 'apache2']
   tasks:
-  
-  - name: add universe repository
+
+  - name: Enable universe repository
     apt_repository:
-      repo: 'universe'
-      state: present
-  
+      repo: "{{ item }}"
+    loop:
+      - "deb http://archive.ubuntu.com/ubuntu/ bionic universe"
+      - "deb http://archive.ubuntu.com/ubuntu/ bionic-updates universe"
+      - "deb http://security.ubuntu.com/ubuntu/ bionic-security universe"
+
   - name: add certbot repository
     apt_repository:
       repo: 'ppa:certbot/certbot'
       state: present
-      
+
   - name: upgrade dist
     apt:
       upgrade: 'yes'
-  
+
   - name: install core packages
     apt:
       name: "{{ core_packages }}"
       update_cache: yes
       state: present
-  
+
   - name: clone project0 repo
     git:
       repo: https://github.com/alexcoward/Project0.git
       dest: /tmp/project0
-  
+
   - name: copy index.html
-    copy: 
+    copy:
        src: /tmp/project0/html_docs/index.html
        dest: /var/www/html/index.html
 
- - name: copy image
-    copy: 
+  - name: copy image
+    copy:
        src: /tmp/project0/html_docs/logo2.png
        dest: /var/www/html/logo2.png
-       
- - name: copy teamaerialcsun.gq default vhost config
-    copy: 
+
+  - name: copy teamaerialcsun.gq default vhost config
+    copy:
        src: /tmp/project0/apache_conf/000-default.conf
        dest: /etc/apache2/sites-available/000-default.conf
        
