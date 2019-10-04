@@ -46,8 +46,8 @@
        
  - name: copy teamaerialcsun.gq default vhost config
     copy: 
-       src: /tmp/project0/configs/
-       dest: 
+       src: /tmp/project0/apache_conf/000-default.conf
+       dest: /etc/apache2/sites-available/000-default.conf
        
   - name: start apache2
     service:
