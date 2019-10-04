@@ -39,18 +39,38 @@
 
   - name: copy index.html
     copy:
-       src: /tmp/project0/html_docs/index.html
-       dest: /var/www/html/index.html
+      src: /tmp/project0/html_docs/index.html
+      dest: /var/www/html/index.html
 
   - name: copy image
     copy:
-       src: /tmp/project0/html_docs/logo2.png
-       dest: /var/www/html/logo2.png
+      src: /tmp/project0/html_docs/logo2.png
+      dest: /var/www/html/logo2.png
 
   - name: copy teamaerialcsun.gq default vhost config
     copy:
-       src: /tmp/project0/apache_conf/000-default.conf
-       dest: /etc/apache2/sites-available/000-default.conf
+      src: /tmp/project0/apache_conf/000-default.conf
+      dest: /etc/apache2/sites-available/000-default.conf
+
+  - name: generate an OpenSSH keypair with the default values (4096 bits, rsa)
+    openssh_keypair:
+      path: /.ssh/github
+
+  - name: add a new read-only deploy key to a GitHub repository using basic authentication
+    github_deploy_key:
+      owner: "alexcoward"
+      repo: "Project0"
+      name: "new-deploy-key"
+      key: "{{ lookup('file', '~/.ssh/github.pub') }}"
+      read_only: yes
+      username: ""
+      password: ""
+
+  - name: pull private repo from git
+    git:
+      repo: https://github.com/username/repo.git
+      dest: /tmp/project0secrets
+      key_file: ~/.ssh/github
        
   - name: start apache2
     service:
