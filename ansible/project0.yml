@@ -1,1 +1,103 @@
+---
 
+- hosts: localhost
+  connection: local
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  vars:
+     core_packages: ['software-properties-common', 'certbot', 'python-certbot-apache', 'ec2-instance-connect', 'apache2']
+
+  vars_prompt:
+    - name: mrepo
+      prompt: "What is your GitHub repo name?"
+      private: no
+
+    - name: musername
+      prompt: "What is your GitHub username?"
+      private: no
+
+    - name: mpassword
+      prompt: "What is your Github password?"
+
+    - name: motp
+      prompt: "Enter six digit one time password"
+
+  tasks:
+
+  - name: Enable universe repository
+    apt_repository:
+      repo: "{{ item }}"
+    loop:
+      - "deb http://archive.ubuntu.com/ubuntu/ bionic universe"
+      - "deb http://archive.ubuntu.com/ubuntu/ bionic-updates universe"
+      - "deb http://security.ubuntu.com/ubuntu/ bionic-security universe"
+
+  - name: add certbot repository
+    apt_repository:
+      repo: 'ppa:certbot/certbot'
+      state: present
+
+  - name: upgrade dist
+    apt:
+      upgrade: 'yes'
+
+  - name: install core packages
+    apt:
+      name: "{{ core_packages }}"
+      update_cache: yes
+      state: present
+
+  - name: clone project0 repo
+    git:
+      repo: https://github.com/alexcoward/Project0.git
+      dest: /tmp/project0
+
+  - name: copy apache2 config files
+    copy: src={{ item.src }} dest={{ item.dest }}
+    with_items:
+      - { src: '/tmp/project0/html_docs/index.html', dest: '/var/www/html/index.html' }
+      - { src: '/tmp/project0/html_docs/logo2.png', dest: '/var/www/html/logo2.png' }
+      - { src: '/tmp/project0/apache_conf/000-default.conf', dest: '/etc/apache2/sites-available/000-default.conf' }
+
+  - name: generate an OpenSSH keypair with the default values (4096 bits, rsa)
+    openssh_keypair:
+      path: /tmp/github
+
+  - name: add a new read-only deploy key to a GitHub repository using basic authentication
+    github_deploy_key:
+      owner: "alexcoward"
+      repo: "{{ mrepo }}"
+      name: "new-deploy-key"
+      key: "{{ lookup('file', '/tmp/github.pub') }}"
+      read_only: yes
+      username: "{{ musername }}"
+      password: "{{ mpassword }}"
+      otp: "{{ motp }}"
+
+  - name: pull private repo from git
+    git:
+      repo: git@github.com:alexcoward/project0secrets.git
+      dest: /tmp/project0secrets
+      key_file: /tmp/github
+      accept_hostkey: true
+      ssh_opts: "-o StrictHostKeyChecking=no"
+
+  - name: copy secrets
+    copy: src={{ item.src }} dest={{ item.dest }}
+    with_items:
+      - { src: '/tmp/project0secrets/options-ssl-apache.conf', dest: '/etc/apache2/options-ssl-apache.conf' }
+      - { src: '/tmp/project0secrets/privkey.pem', dest: '/etc/apache2/privkey.pem' }
+      - { src: '/tmp/project0secrets/fullchain.pem', dest: '/etc/apache2/fullchain.pem' }
+
+  - name: enable apache2_module rewrite workaround 
+    command: a2enmod rewrite
+
+  - name: enable apache2_module ssl workaround 
+    command: a2enmod ssl
+
+  - name: restart apache2
+    service:
+      name: apache2
+      state: restarted
