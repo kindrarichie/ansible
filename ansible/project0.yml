@@ -59,7 +59,7 @@
   - name: add a new read-only deploy key to a GitHub repository using basic authentication
     github_deploy_key:
       owner: "alexcoward"
-      repo: "project0secrets"
+      repo: ""
       name: "new-deploy-key"
       key: "{{ lookup('file', '/tmp/github.pub') }}"
       read_only: yes
