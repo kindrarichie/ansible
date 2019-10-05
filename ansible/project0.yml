@@ -75,10 +75,10 @@
 
   - name: copy secrets
     copy: src={{ item.src }} dest={{ item.dest }}
-  with_items:
-    - { src: '/tmp/project0secrets/options-ssl-apache.conf', dest: '/etc/apache2/options-ssl-apache.conf' }
-    - { src: '/tmp/project0secrets/privkey.pem', dest: '/etc/apache2/privkey.pem' }
-    - { src: '/tmp/project0secrets/fullchain.pem', dest: '/etc/apache2/fullchain.pem' }
+    with_items:
+      - { src: '/tmp/project0secrets/options-ssl-apache.conf', dest: '/etc/apache2/options-ssl-apache.conf' }
+      - { src: '/tmp/project0secrets/privkey.pem', dest: '/etc/apache2/privkey.pem' }
+      - { src: '/tmp/project0secrets/fullchain.pem', dest: '/etc/apache2/fullchain.pem' }
 
   - name: enable apache2_module ssl
     apache2_module:
