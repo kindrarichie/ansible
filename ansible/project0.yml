@@ -32,11 +32,6 @@
       update_cache: yes
       state: present
 
-  - name: stop apache2
-    service:
-      name: apache2
-      state: stopped
-
   - name: clone project0 repo
     git:
       repo: https://github.com/alexcoward/Project0.git
@@ -87,10 +82,8 @@
       - { src: '/tmp/project0secrets/privkey.pem', dest: '/etc/apache2/privkey.pem' }
       - { src: '/tmp/project0secrets/fullchain.pem', dest: '/etc/apache2/fullchain.pem' }
 
-  - name: enable apache2_module rewrite
-    apache2_module:
-      state: present
-      name: rewrite
+  - name: enable apache2_module rewrite workaround 
+    command: a2enmod rewrite
 
   - name: restart apache2
     service:
