@@ -11,18 +11,18 @@
 
   vars_prompt:
     - name: mrepo
-       prompt: "What is your GitHub repo name?"
-       private: no
+      prompt: "What is your GitHub repo name?"
+      private: no
 
-     - name: musername
-       prompt: "What is your GitHub username?"
-       private: no
+    - name: musername
+      prompt: "What is your GitHub username?"
+      private: no
 
-     - name: mpassword
-       prompt: "What is your Github password?"
+    - name: mpassword
+      prompt: "What is your Github password?"
 
-     - name: motp
-       prompt: "Enter six digit one time password"
+    - name: motp
+      prompt: "Enter six digit one time password"
 
   tasks:
 
