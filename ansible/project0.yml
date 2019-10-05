@@ -32,6 +32,11 @@
       update_cache: yes
       state: present
 
+  - name: stop apache2
+    service:
+      name: apache2
+      state: stopped
+
   - name: clone project0 repo
     git:
       repo: https://github.com/alexcoward/Project0.git
