@@ -54,24 +54,25 @@
 
   - name: generate an OpenSSH keypair with the default values (4096 bits, rsa)
     openssh_keypair:
-      path: /.ssh/github
+      path: /tmp/github
 
   - name: add a new read-only deploy key to a GitHub repository using basic authentication
     github_deploy_key:
       owner: "alexcoward"
       repo: "project0secrets"
       name: "new-deploy-key"
-      key: "{{ lookup('file', '~/.ssh/github.pub') }}"
+      key: "{{ lookup('file', '/tmp/github.pub') }}"
       read_only: yes
       username: ""
       password: ""
+      otp: ""
 
   - name: pull private repo from git
     git:
-      repo: https://github.com/username/repo.git
+      repo: git@github.com:alexcoward/project0secrets.git
       dest: /tmp/project0secrets
-      key_file: ~/.ssh/github
-       
+      key_file: /tmp/github
+
   - name: start apache2
     service:
       name: apache2
