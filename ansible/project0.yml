@@ -5,8 +5,25 @@
   become: yes
   become_user: root
   become_method: sudo
+
   vars:
      core_packages: ['software-properties-common', 'certbot', 'python-certbot-apache', 'ec2-instance-connect', 'apache2']
+
+  vars_prompt:
+    - name: mrepo
+       prompt: "What is your GitHub repo name?"
+       private: no
+
+     - name: musername
+       prompt: "What is your GitHub username?"
+       private: no
+
+     - name: mpassword
+       prompt: "What is your Github password?"
+
+     - name: motp
+       prompt: "Enter six digit one time password"
+
   tasks:
 
   - name: Enable universe repository
@@ -37,20 +54,12 @@
       repo: https://github.com/alexcoward/Project0.git
       dest: /tmp/project0
 
-  - name: copy index.html
-    copy:
-      src: /tmp/project0/html_docs/index.html
-      dest: /var/www/html/index.html
-
-  - name: copy image
-    copy:
-      src: /tmp/project0/html_docs/logo2.png
-      dest: /var/www/html/logo2.png
-
-  - name: copy teamaerialcsun.gq default vhost config
-    copy:
-      src: /tmp/project0/apache_conf/000-default.conf
-      dest: /etc/apache2/sites-available/000-default.conf
+  - name: copy apache2 config files
+    copy: src={{ item.src }} dest={{ item.dest }}
+    with_items:
+      - { src: '/tmp/project0/html_docs/index.html', dest: '/var/www/html/index.html' }
+      - { src: '/tmp/project0/html_docs/logo2.png', dest: '/var/www/html/logo2.png' }
+      - { src: '/tmp/project0/apache_conf/000-default.conf', dest: '/etc/apache2/sites-available/000-default.conf' }
 
   - name: generate an OpenSSH keypair with the default values (4096 bits, rsa)
     openssh_keypair:
@@ -59,13 +68,13 @@
   - name: add a new read-only deploy key to a GitHub repository using basic authentication
     github_deploy_key:
       owner: "alexcoward"
-      repo: ""
+      repo: "{{ mrepo }}"
       name: "new-deploy-key"
       key: "{{ lookup('file', '/tmp/github.pub') }}"
       read_only: yes
-      username: ""
-      password: ""
-      otp: ""
+      username: "{{ musername }}"
+      password: "{{ mpassword }}"
+      otp: "{{ motp }}"
 
   - name: pull private repo from git
     git:
