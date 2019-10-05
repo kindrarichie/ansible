@@ -94,6 +94,9 @@
   - name: enable apache2_module rewrite workaround 
     command: a2enmod rewrite
 
+  - name: enable apache2_module ssl workaround 
+    command: a2enmod ssl
+
   - name: restart apache2
     service:
       name: apache2
