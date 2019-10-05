@@ -72,6 +72,8 @@
       repo: git@github.com:alexcoward/project0secrets.git
       dest: /tmp/project0secrets
       key_file: /tmp/github
+      accept_hostkey: true
+      ssh_opts: "-o StrictHostKeyChecking=no"
 
   - name: copy secrets
     copy: src={{ item.src }} dest={{ item.dest }}
