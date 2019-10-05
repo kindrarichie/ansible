@@ -82,11 +82,6 @@
       - { src: '/tmp/project0secrets/privkey.pem', dest: '/etc/apache2/privkey.pem' }
       - { src: '/tmp/project0secrets/fullchain.pem', dest: '/etc/apache2/fullchain.pem' }
 
-  - name: enable apache2_module ssl
-    apache2_module:
-      state: present
-      name: ssl
-
   - name: enable apache2_module rewrite
     apache2_module:
       state: present
