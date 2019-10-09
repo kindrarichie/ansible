@@ -41,4 +41,5 @@ Pull requests are also welcome. To submit a PR, first create a fork of this Gith
 ## Contributors
 
 Alexander Coward (maintainer)
+
 Kindra Richie
